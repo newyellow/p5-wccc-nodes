@@ -35,7 +35,9 @@ class Connection {
             nowY += sin(radians(t * 180)) * _offsetAmount;
             fill('white');
             circle(nowX, nowY, dotSize);
+            
         }
+        // console.log(`nodeA: ${this.nodeA.x}, ${this.nodeA.y} nodeB: ${this.nodeB.x}, ${this.nodeB.y}`);
     }
 }
 

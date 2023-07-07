@@ -1,5 +1,8 @@
 
 let mainHue = Math.floor(Math.random() * 360);
+let baseSat = 40;
+let baseBri = 40;
+
 let drawNS_X = 0.01;
 let drawNS_Y = 0.01;
 
@@ -212,8 +215,8 @@ function NYStick(_x, _y, _width, _height, _angle, _color) {
 function NYRandomColor(_hueOffset = 0) {
 
     let resultHue = mainHue + _hueOffset + random(-30, 30);
-    let resultSat = random(40, 80);
-    let resultBri = random(60, 100);
+    let resultSat = baseSat + random(-30, 30);
+    let resultBri = baseBri + random(-30, 30);
 
     if (random() < 0.06) {
         resultSat = 0;

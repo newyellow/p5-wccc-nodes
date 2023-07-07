@@ -1,53 +1,86 @@
 async function setup() {
   createCanvas(800, 1000);
   pixelDensity(3);
-  background(200);
+  background(30);
   colorMode(HSB);
-  
+
+
+  let bgColorA = new NYColor(mainHue, random(10, 50), random(10, 40));
+  let bgColorB = new NYColor(mainHue, random(10, 50), random(10, 60));
+  NYRect(0, 0, width, height, bgColorA, bgColorB);
+
+  await sleep(1);
 
   // blendMode(MULTIPLY);
+  let startY = random(0.0, 0.2) * height;
+  let stepY = random(0.01, 0.02) * height;
 
-  let blocksA = createBlocks(550, 100, 200, 600);
-  let nodesA = [];
-  for (let i = 0; i < blocksA.length; i++) {
-    blocksA[i].createNodes();
-    blocksA[i].drawRoomAndGetNodes();
+  let lastBlocks = [];
+  let nowBlocks = [];
 
-    for (let j = 0; j < blocksA[i].nodes.length; j++) {
-      nodesA.push(blocksA[i].nodes[j]);
+  let lastNodes = [];
+  let nowNodes = [];
+
+  baseBri = 10;
+  for (let y = startY; y < height; y += stepY) {
+    let xPos = random(-0.1, 1.1) * width;
+    let yPos = y;
+
+    baseBri += 1;
+
+    let buildingWidth = random(0.05, 0.3) * width;
+    let buildingHeight = random(0.1, 0.4) * height;
+
+    xPos -= 0.5 * buildingWidth;
+    yPos -= 0.5 * buildingHeight;
+
+    nowBlocks = createBlocks(xPos, yPos, buildingWidth, buildingHeight);
+
+    for (let i = 0; i < nowBlocks.length; i++) {
+      nowBlocks[i].createNodes();
+      nowBlocks[i].drawRoomAndGetNodes();
+
+      for (let j = 0; j < nowBlocks[i].nodes.length; j++) {
+        nowNodes.push(nowBlocks[i].nodes[j]);
+      }
     }
-  }
+    await sleep(1);
 
-  let blocksB = createBlocks(100, 400, 300, 400);
-  let nodesB = [];
-  for (let i = 0; i < blocksB.length; i++) {
-    blocksB[i].createNodes();
-    blocksB[i].drawRoomAndGetNodes();
-
-    for (let j = 0; j < blocksB[i].nodes.length; j++) {
-      nodesB.push(blocksB[i].nodes[j]);
+    if(lastNodes.length != 0)
+    {
+      drawRandomConnections(lastNodes, nowNodes);
+      await sleep(1);
     }
+
+    lastNodes = nowNodes;
+    nowNodes = [];
   }
 
-  let connections = [];
+  // let blocksA = createBlocks(550, 100, 200, 600);
+  // let nodesA = [];
+  // for (let i = 0; i < blocksA.length; i++) {
+  //   blocksA[i].createNodes();
+  //   blocksA[i].drawRoomAndGetNodes();
 
-  shaffleArray(nodesA);
-  shaffleArray(nodesB);
+  //   for (let j = 0; j < blocksA[i].nodes.length; j++) {
+  //     nodesA.push(blocksA[i].nodes[j]);
+  //   }
+  // }
 
-  let minLength = min(nodesA.length, nodesB.length);
-  for (let i = 0; i < minLength; i++) {
-    let nodeA = nodesA[i];
-    let nodeB = nodesB[i];
+  // let blocksB = createBlocks(100, 400, 300, 400);
+  // let nodesB = [];
+  // for (let i = 0; i < blocksB.length; i++) {
+  //   blocksB[i].createNodes();
+  //   blocksB[i].drawRoomAndGetNodes();
 
-    connections.push(new Connection(nodeA, nodeB));
-  }
+  //   for (let j = 0; j < blocksB[i].nodes.length; j++) {
+  //     nodesB.push(blocksB[i].nodes[j]);
+  //   }
+  // }
 
-  for (let i = 0; i < connections.length; i++) {
-    // connections[i].drawLinear();
-    noStroke();
-    fill(0);
-    connections[i].drawCurve(random(0.05, 0.2) * height);
-  }
+  // drawRandomConnections(nodesA, nodesB);
+
+
 }
 
 function createBlocks(_x, _y, _width, _height, _depth = 0) {
@@ -146,6 +179,29 @@ function shaffleArray(_array) {
     _array[randomIndex] = temp;
   }
 
+}
+
+function drawRandomConnections(_nodesA, _nodesB) {
+  let connections = [];
+
+  shaffleArray(_nodesA);
+  shaffleArray(_nodesB);
+
+  let drawCount = min(_nodesA.length, _nodesB.length);
+
+  for (let i = 0; i < drawCount; i++) {
+    let nodeA = _nodesA[i];
+    let nodeB = _nodesB[i];
+
+    connections.push(new Connection(nodeA, nodeB));
+  }
+
+  for (let i = 0; i < connections.length; i++) {
+    noStroke();
+    fill(0);
+    connections[i].drawCurve(random(0.01, 0.1) * height);
+    // connections[i].drawLinear();
+  }
 }
 
 function draw() {
