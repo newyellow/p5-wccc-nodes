@@ -1,5 +1,8 @@
 let nodeDensity = 0.03;
-let dotDensity = 1;
+let dotDensity = 0.16;
+
+let wireType = 2;
+let wireColor;
 
 class NYNode {
     constructor(_x, _y) {
@@ -30,12 +33,22 @@ class Connection {
             let nowX = lerp(this.nodeA.x, this.nodeB.x, i / dotCount);
             let nowY = lerp(this.nodeA.y, this.nodeB.y, i / dotCount);
 
-            let sizeNoise = noise(nowX * 0.6, nowY * 0.6);
-            let dotSize = lerp(1, 2, sizeNoise);
             nowY += sin(radians(t * 180)) * _offsetAmount;
-            fill('white');
-            circle(nowX, nowY, dotSize);
-            
+            fill(wireColor);
+
+            if (wireType == 0) {
+                let dotSize = 3;
+                circle(nowX, nowY, dotSize);
+            }
+            else if (wireType == 1) {
+                circle(nowX, nowY, 1.2);
+            }
+            else if (wireType == 2) {
+                let sizeNoise = noise(nowX * 0.3, nowY * 0.3);
+                let dotSize = lerp(-1, 3, sizeNoise);
+                circle(nowX, nowY, dotSize);
+            }
+
         }
         // console.log(`nodeA: ${this.nodeA.x}, ${this.nodeA.y} nodeB: ${this.nodeB.x}, ${this.nodeB.y}`);
     }
@@ -71,13 +84,13 @@ class NYBlock {
     }
 
     drawRoomAndGetNodes() {
-        
+
         this.nodes = NYRoom(this.x, this.y, this.w, this.h, this.colorA, this.colorB);
     }
 }
 
 class NYColor {
-    constructor(_h, _s, _b, _a = 1.0){
+    constructor(_h, _s, _b, _a = 1.0) {
         this.h = _h;
         this.s = _s;
         this.b = _b;
@@ -92,7 +105,7 @@ class NYColor {
         fill(this.h, this.s, this.b, this.a);
     }
 
-    getRandomColor (_hRange, _sRange, _bRange) {
+    getRandomColor(_hRange, _sRange, _bRange) {
         let h = this.h + random(-_hRange, _hRange);
         let s = this.s + random(-_sRange, _sRange);
         let b = this.b + random(-_bRange, _bRange);

@@ -1,8 +1,36 @@
 async function setup() {
   createCanvas(windowWidth, windowHeight);
-  pixelDensity(3);
+  pixelDensity(1);
   background(30);
   colorMode(HSB);
+
+  // different wire draw method
+  wireType = floor(random(0, 2));
+  if (wireType == 0)
+    dotDensity = 0.16;
+  else if (wireType == 1)
+    dotDensity = 1.2;
+
+  // different connection points styles
+  let connectionType = floor(random(0, 3));
+  if (connectionType == 0) {
+    stickChance = random(0.2, 0.6);
+    nodeBoxChance = 0.0;
+  }
+  else if (connectionType == 1) {
+    stickChance = 0.0;
+    nodeBoxChance = random(0.2, 0.6);
+  }
+  else {
+    stickChance = random(0.2, 0.4);
+    nodeBoxChance = random(0.2, 0.4);
+  }
+
+  // random wire color
+  if (random() < 0.5)
+    wireColor = color(0, 0, 100, 0.9);
+  else
+    wireColor = color(0, 0, 0, 0.9);
 
 
   let bgColorA = new NYColor(mainHue, random(10, 50), random(10, 40));
@@ -13,13 +41,14 @@ async function setup() {
 
   // blendMode(MULTIPLY);
   let rowsCount = floor(random(3, 12));
-  let rowHeightStep = (height * 0.8) / rowsCount;
+  let rowHeightStep = (height * 0.6) / rowsCount;
 
   let lastBlocks = [];
   let nowBlocks = [];
 
   let lastNodes = [];
-  let nowNodes = [];
+  let nowNodesA = [];
+  let nowNodesB = [];
 
   baseBri = 30;
 
@@ -35,23 +64,31 @@ async function setup() {
 
     mainHue += random(-30, 30);
     baseBri = random(30, 60);
-    baseSat = random(30, 60);
+    baseSat = random(40, 80);
 
     for (let x = 0; x < xCount; x++) {
+
+      if (random() < 0.2)
+        continue;
+
       let buildingWidth = xRatios[x] * width;
       let buildingHeight = random(0.4, 1.0) * maxHeight;
 
       let xPos = startX;
       let yPos = height - buildingHeight;
 
-      nowBlocks = createBlocks(xPos, yPos, buildingWidth, buildingHeight);
+      nowBlocks = createBlocks(xPos, yPos, buildingWidth, buildingHeight, 0);
 
       for (let i = 0; i < nowBlocks.length; i++) {
         nowBlocks[i].createNodes();
         nowBlocks[i].drawRoomAndGetNodes();
 
         for (let j = 0; j < nowBlocks[i].nodes.length; j++) {
-          nowNodes.push(nowBlocks[i].nodes[j]);
+
+          if (j % 2 == 0)
+            nowNodesA.push(nowBlocks[i].nodes[j]);
+          else
+            nowNodesB.push(nowBlocks[i].nodes[j]);
         }
       }
       await sleep(100);
@@ -66,25 +103,33 @@ async function setup() {
       }
 
       if (lastNodes.length != 0) {
-        drawRandomConnections(lastNodes, nowNodes);
+        drawRandomConnections(lastNodes, nowNodesA);
         await sleep(1);
       }
 
-      lastNodes = nowNodes;
-      nowNodes = [];
+      lastNodes = nowNodesB;
+      nowNodesA = [];
+      nowNodesB = [];
     }
+
+    // bgColorA.a = 0.03;
+    // bgColorB.a = 0.03;
+    // NYRect(0, 0, width, height, bgColorA, bgColorB);
+
+    // if (r < rowsCount - 1)
+    //   filter(BLUR, 2);
   }
 }
 
-function createBlocks(_x, _y, _width, _height, _depth = 0) {
+function createBlocks(_x, _y, _width, _height, _colorOffset = 0, _depth = 0) {
   let isSplit = false;
 
   if (_depth == 0)
     isSplit = true;
-  else if (random() < 0.8)
+  else if (random() < 0.9)
     isSplit = true;
 
-  if (_width < 50 || _height < 50)
+  if (_width < 60 || _height < 60)
     isSplit = false;
 
   if (isSplit) {
@@ -114,8 +159,8 @@ function createBlocks(_x, _y, _width, _height, _depth = 0) {
         rectB_Y += random(-0.025, 0.025) * rectB_Height;
       }
 
-      let blocksA = createBlocks(rectA_X, rectA_Y, rectA_Width, rectA_Height, _depth + 1);
-      let blocksB = createBlocks(rectB_X, rectB_Y, rectB_Width, rectB_Height, _depth + 1);
+      let blocksA = createBlocks(rectA_X, rectA_Y, rectA_Width, rectA_Height, _colorOffset, _depth + 1);
+      let blocksB = createBlocks(rectB_X, rectB_Y, rectB_Width, rectB_Height, _colorOffset, _depth + 1);
 
       return blocksA.concat(blocksB);
     }
@@ -144,18 +189,28 @@ function createBlocks(_x, _y, _width, _height, _depth = 0) {
         rectB_Y += random(-0.025, 0.025) * rectB_Height;
       }
 
-      let blocksA = createBlocks(rectA_X, rectA_Y, rectA_Width, rectA_Height, _depth + 1);
-      let blocksB = createBlocks(rectB_X, rectB_Y, rectB_Width, rectB_Height, _depth + 1);
+      let blocksA = createBlocks(rectA_X, rectA_Y, rectA_Width, rectA_Height, _colorOffset, _depth + 1);
+      let blocksB = createBlocks(rectB_X, rectB_Y, rectB_Width, rectB_Height, _colorOffset, _depth + 1);
 
       return blocksA.concat(blocksB);
     }
   }
   else {
-    let newBlock = new NYBlock(_x, _y, _width, _height);
-    newBlock.colorA = NYRandomColor();
-    newBlock.colorB = NYRandomColor();
 
-    return [newBlock];
+    if (random() < 0.1) // chance to become empty
+    {
+      return [];
+
+    }
+    else {
+      let newBlock = new NYBlock(_x, _y, _width, _height);
+
+      newBlock.colorA = NYRandomColor(_colorOffset);
+      newBlock.colorB = NYRandomColor(_colorOffset);
+
+
+      return [newBlock];
+    }
   }
 
 }
@@ -195,9 +250,9 @@ function shaffleArray(_array) {
 
 function sortNodesUpDown(_nodes) {
   _nodes.sort(function (a, b) {
-    if(a.y < b.y)
+    if (a.y < b.y)
       return -1;
-    else if(a.y > b.y)
+    else if (a.y > b.y)
       return 1;
     else
       return 0;
@@ -226,7 +281,8 @@ function drawRandomConnections(_nodesA, _nodesB) {
     noStroke();
     fill(0);
     // connections[i].drawCurve(random(0.01, 0.1) * height);
-    connections[i].drawCurve(random(10, 60));
+    let minSide = min(width, height);
+    connections[i].drawCurve(random(0.03, 0.1) * minSide);
     // connections[i].drawLinear();
   }
 }

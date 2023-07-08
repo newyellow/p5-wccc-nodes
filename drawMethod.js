@@ -11,13 +11,18 @@ let lineThickness = 6;
 let lineLength = 12;
 
 
+let stickChance = 0.3;
+let nodeBoxChance = 0.3;
+
 function NYRoom(_x, _y, _width, _height, _colorA, _colorB) {
 
     let nodes = [];
+    let hasStick = false;
 
     // has stick
-    if (random() < 0.3) {
+    if (random() < 0.2) {
         nodes = drawStick(_x, _y, _width, _height, _colorA, _colorB);
+        hasStick = true;
     }
 
     NYRect(_x, _y, _width, _height, _colorA, _colorB);
@@ -27,8 +32,8 @@ function NYRoom(_x, _y, _width, _height, _colorA, _colorB) {
         let windowType = floor(random(0, 3));
 
         if (windowType == 0) {
-            let windowSizeX = random(3, 12);
-            let windowSizeY = random(3, 12);
+            let windowSizeX = random(2, 10);
+            let windowSizeY = random(2, 10);
 
             if (windowSizeY < 0.1 * _height)
                 windowSizeY = 0.1 * _height;
@@ -51,9 +56,9 @@ function NYRoom(_x, _y, _width, _height, _colorA, _colorB) {
                 NYRect(xPos, yPos, windowSizeX, windowSizeY, whiteColorA, whiteColorB);
             }
         }
-        else if(windowType == 1) {
-            let windowSizeX = random(3, 12);
-            let windowSizeY = random(3, 12);
+        else if (windowType == 1) {
+            let windowSizeX = random(2, 10);
+            let windowSizeY = random(2, 10);
 
             if (windowSizeX < 0.1 * _width)
                 windowSizeX = 0.1 * _width;
@@ -76,6 +81,36 @@ function NYRoom(_x, _y, _width, _height, _colorA, _colorB) {
                 NYRect(xPos, yPos, windowSizeX, windowSizeY, whiteColorA, whiteColorB);
             }
         }
+    }
+
+    // has node box
+    if (!hasStick && random() < 0.3) {
+        let nodeBoxWidth = min(random(0.1, 0.2) * _width, 20);
+        let nodeBoxHeight = min(random(0.1, 0.2) * _height, 20);
+
+        let nodeBoxX = _x + random(0.05, 0.15) * _width;
+        if (random() < 0.5)
+            nodeBoxX = _x + _width - nodeBoxWidth - random(0.05, 0.15) * _width;
+
+        let nodeBoxY = _y + random(0.05, 0.15) * _height;
+        if (random() < 0.5)
+            nodeBoxY = _y + _height - nodeBoxHeight - random(0.05, 0.15) * _height;
+
+        let nodeBoxColorA = _colorA.getRandomColor(0, 20, 20);
+        let nodeBoxColorB = _colorB.getRandomColor(0, 20, 20);
+
+        NYRect(nodeBoxX, nodeBoxY, nodeBoxWidth, nodeBoxHeight, nodeBoxColorA, nodeBoxColorB);
+
+        strokeWeight(2);
+        stroke(0, 0, 0, 0.6);
+        noFill();
+        rect(nodeBoxX, nodeBoxY, nodeBoxWidth, nodeBoxHeight);
+
+        let nodeA = new NYNode(nodeBoxX, nodeBoxY + 0.5 * nodeBoxHeight);
+        let nodeB = new NYNode(nodeBoxX + nodeBoxWidth, nodeBoxY + 0.5 * nodeBoxHeight);
+
+        nodes.push(nodeA);
+        nodes.push(nodeB);
     }
 
     return nodes;
@@ -173,7 +208,7 @@ function drawStick(_x, _y, _width, _height, _colorA, _colorB) {
     if (random() < 0.1)
         stickRot = random(-40, 40);
 
-    let stickHeight = random(10, 120);
+    let stickHeight = random(10, 60);
 
     return NYStick(stickPosX, stickPosY, random(3, 8), stickHeight, stickRot, stickColor)
 }
@@ -183,6 +218,8 @@ function NYStick(_x, _y, _width, _height, _angle, _color) {
     let lineCount = floor(_height * lineDensity);
 
     let poleNodes = [];
+    let nodePos = random(0.5, 1.0);
+    let nodeDrawn = false;
 
     for (let i = 0; i < lineCount; i++) {
         let t = i / (lineCount - 1);
@@ -197,8 +234,12 @@ function NYStick(_x, _y, _width, _height, _angle, _color) {
         _color.applyStroke();
         strokeWeight(random(1, 2));
 
-        if (random() < 0.1) {
-            let outWidth = nowWidth * random(1.4, 6);
+
+        // add nodes
+        if (!nodeDrawn && t >= nodePos) {
+            nodeDrawn = true;
+
+            let outWidth = _width * random(3, 6);
 
             let x1 = xPos + sin(radians(_angle - 90)) * outWidth * 0.5;
             let y1 = yPos - cos(radians(_angle - 90)) * outWidth * 0.5;
@@ -206,8 +247,8 @@ function NYStick(_x, _y, _width, _height, _angle, _color) {
             let x2 = xPos + sin(radians(_angle + 90)) * outWidth * 0.5;
             let y2 = yPos - cos(radians(_angle + 90)) * outWidth * 0.5;
 
-            let nodePosRatioA = random(0.1, 0.4);
-            let nodePosRatioB = 1 - nodePosRatioA;
+            let nodePosRatioA = 0.05;
+            let nodePosRatioB = 0.95;
 
             let nodeAX = lerp(x1, x2, nodePosRatioA);
             let nodeAY = lerp(y1, y2, nodePosRatioA);
@@ -215,11 +256,22 @@ function NYStick(_x, _y, _width, _height, _angle, _color) {
             let nodeBX = lerp(x1, x2, nodePosRatioB);
             let nodeBY = lerp(y1, y2, nodePosRatioB);
 
-            if (random() < 0.5)
-                poleNodes.push(new NYNode(nodeAX, nodeAY));
-            else
-                poleNodes.push(new NYNode(nodeBX, nodeBY));
 
+            poleNodes.push(new NYNode(nodeAX, nodeAY));
+            poleNodes.push(new NYNode(nodeBX, nodeBY));
+
+
+            line(x1, y1, x2, y2);
+        }
+        // simply draw style
+        else if (random() < 0.1) {
+            let outWidth = nowWidth * random(3, 6);
+
+            let x1 = xPos + sin(radians(_angle - 90)) * outWidth * 0.5;
+            let y1 = yPos - cos(radians(_angle - 90)) * outWidth * 0.5;
+
+            let x2 = xPos + sin(radians(_angle + 90)) * outWidth * 0.5;
+            let y2 = yPos - cos(radians(_angle + 90)) * outWidth * 0.5;
 
             line(x1, y1, x2, y2);
         }
