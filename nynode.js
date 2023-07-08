@@ -31,7 +31,7 @@ class Connection {
             let nowY = lerp(this.nodeA.y, this.nodeB.y, i / dotCount);
 
             let sizeNoise = noise(nowX * 0.6, nowY * 0.6);
-            let dotSize = lerp(1, 1, sizeNoise);
+            let dotSize = lerp(1, 2, sizeNoise);
             nowY += sin(radians(t * 180)) * _offsetAmount;
             fill('white');
             circle(nowX, nowY, dotSize);

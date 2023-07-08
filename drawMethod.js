@@ -25,7 +25,6 @@ function NYRoom(_x, _y, _width, _height, _colorA, _colorB) {
     // has windows
     if (random() < 0.6) {
         let windowType = floor(random(0, 3));
-        windowType = 0;
 
         if (windowType == 0) {
             let windowSizeX = random(3, 12);
@@ -43,6 +42,31 @@ function NYRoom(_x, _y, _width, _height, _colorA, _colorB) {
             for (let i = 0; i < windowCountX; i++) {
                 let xPos = startX + i * windowSpace;
                 let yPos = startY;
+
+                let whiteColorA = new NYColor(0, 0, 100, 1.0);
+                let whiteColorB = new NYColor(0, 0, 100, 1.0);
+                // NYRect(xPos, yPos, windowSizeX, windowSizeY, whiteColorA, whiteColorB);
+                // fill('white');
+                // rect(xPos, yPos, windowSizeX, windowSizeY);
+                NYRect(xPos, yPos, windowSizeX, windowSizeY, whiteColorA, whiteColorB);
+            }
+        }
+        else if(windowType == 1) {
+            let windowSizeX = random(3, 12);
+            let windowSizeY = random(3, 12);
+
+            if (windowSizeX < 0.1 * _width)
+                windowSizeX = 0.1 * _width;
+
+            let windowSpace = max(windowSizeX, windowSizeY) * random(1.4, 3);
+            let windowCountY = floor(_height * 0.8 / windowSpace);
+
+            let startX = _x + random(0.1, 0.9) * _width;
+            let startY = _y + _height * random(0.04, 0.16);
+
+            for (let i = 0; i < windowCountY; i++) {
+                let xPos = startX;
+                let yPos = startY + i * windowSpace;
 
                 let whiteColorA = new NYColor(0, 0, 100, 1.0);
                 let whiteColorB = new NYColor(0, 0, 100, 1.0);
@@ -191,8 +215,10 @@ function NYStick(_x, _y, _width, _height, _angle, _color) {
             let nodeBX = lerp(x1, x2, nodePosRatioB);
             let nodeBY = lerp(y1, y2, nodePosRatioB);
 
-            poleNodes.push(new NYNode(nodeAX, nodeAY));
-            poleNodes.push(new NYNode(nodeBX, nodeBY));
+            if (random() < 0.5)
+                poleNodes.push(new NYNode(nodeAX, nodeAY));
+            else
+                poleNodes.push(new NYNode(nodeBX, nodeBY));
 
 
             line(x1, y1, x2, y2);
