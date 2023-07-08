@@ -33,12 +33,14 @@ async function setup() {
     wireColor = color(0, 0, 0, 0.9);
 
 
-  let bgColorA = new NYColor(mainHue, random(10, 50), random(10, 60));
-  let bgColorB = new NYColor(mainHue + random(-30, 30), random(10, 50), random(10, 60));
-  console.log(bgColorA);
-  console.log(bgColorB);
-  NYRectBG(0, 0, width, height, bgColorA, bgColorB);
+  let bgColorA = new NYColor(mainHue + 60, random(20, 30), random(80, 100));
+  let bgColorB = new NYColor(mainHue - 60, random(20, 30), random(10, 30));
 
+  moonX = random(0.1, 0.9) * width;
+  moonY = random(0.1, 0.9) * height;
+  // NYRectBG(0, 0, width, height, bgColorA, bgColorB);
+
+  NYRectBGLine(0, 0, width, height, bgColorA, bgColorB);
   await sleep(1);
 
   // blendMode(MULTIPLY);
@@ -121,6 +123,9 @@ async function setup() {
     // if (r < rowsCount - 1)
     //   filter(BLUR, 2);
   }
+
+  stroke(0, 0, 100, 1.0);
+  drawFrame();
 }
 
 function createBlocks(_x, _y, _width, _height, _colorOffset = 0, _depth = 0) {

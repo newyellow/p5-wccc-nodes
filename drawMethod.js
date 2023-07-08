@@ -13,6 +13,8 @@ let lineDensity = 0.6;
 let lineThickness = 6;
 let lineLength = 12;
 
+let moonX = 0;
+let moonY = 0;
 
 let stickChance = 0.3;
 let nodeBoxChance = 0.3;
@@ -225,7 +227,8 @@ function NYRectBG(_x, _y, _width, _height, _colorA, _colorB) {
 
                 let sizeNoise = noise(xPos * bgNS_X, yPos * bgNS_Y);
 
-                let nowColor = NYLerpColor(fromColor, toColor, x / lineCountX);
+                let distRatio = dist(moonX, moonY, xPos, yPos) / min(width, height);
+                let nowColor = NYLerpColor(fromColor, toColor, distRatio);
                 let randomizedColor = nowColor.getRandomColor(4, 4, 4);
                 randomizedColor.a = 0.8;
                 // randomizedColor.applyStroke();
@@ -240,6 +243,110 @@ function NYRectBG(_x, _y, _width, _height, _colorA, _colorB) {
                 pop();
             }
         }
+    }
+}
+
+function NYRectBGLine(_x, _y, _width, _height, _colorA, _colorB) {
+
+    let thickness = random(2, 12);
+    let xCount = _width / thickness;
+    let yCount = floor(random(8, 128));
+    let ySpacing = _height / yCount;
+
+    // draw vertical lines
+    for (let y = 0; y < yCount; y++) {
+        for (let x = 0; x < xCount; x++) {
+            let xPos = _x + x * thickness;
+            let yPos = _y + y * ySpacing;
+
+            let distRatio = dist(moonX, moonY, xPos, yPos) / max(width, height);
+            let nowColor = NYLerpColor(_colorA, _colorB, distRatio);
+            let randomizedColor = nowColor.getRandomColor(30, 3, 6);
+            if (random() < 0.06)
+                randomizedColor.h = processHue(randomizedColor.h + 180);
+
+            randomizedColor.a = 0.8;
+            randomizedColor.applyStroke();
+
+            push();
+            translate(xPos, yPos);
+            strokeWeight(thickness);
+            // let lengthNoise = noise(xPos * 3, yPos * 0.001);
+            // let drawLength = lerp(1.0, 1.4, lengthNoise) * ySpacing;
+            drawLength = ySpacing;
+            line(0, -0.5 * drawLength, 0, 0.5 * drawLength);
+            pop();
+        }
+    }
+
+}
+
+async function drawFrame() {
+    let frameNoiseScale = 0.01;
+    let thickness = random(0.01, 0.03) * min(width, height);
+
+    // draw up
+    for (let x = 0; x < width; x++) {
+        let x1 = x;
+        let y1 = 0;
+
+        let x2 = x;
+        let y2 = thickness;
+
+        let sizeNoise = noise(x * frameNoiseScale, y2 * frameNoiseScale);
+
+        y2 = lerp(1.0, 1.4, sizeNoise) * thickness;
+
+        strokeWeight(2);
+        line(x1, y1, x2, y2);
+    }
+
+    // draw bot
+    for (let x = 0; x < width; x++) {
+        let x1 = x;
+        let y1 = height;
+
+        let x2 = x;
+        let y2 = height - thickness;
+
+        let sizeNoise = noise(x * frameNoiseScale, y2 * frameNoiseScale);
+
+        y2 = height - lerp(1.0, 1.4, sizeNoise) * thickness;
+
+        strokeWeight(2);
+        line(x1, y1, x2, y2);
+    }
+
+    // draw left
+    for (let y = 0; y < height; y++) {
+        let x1 = 0;
+        let y1 = y;
+
+        let x2 = thickness;
+        let y2 = y;
+
+        let sizeNoise = noise(x2 * frameNoiseScale, y * frameNoiseScale);
+
+        x2 = lerp(1.0, 1.4, sizeNoise) * thickness;
+
+        strokeWeight(2);
+        line(x1, y1, x2, y2);    
+    }
+
+    // draw right
+    for (let y = 0; y < height; y++) {
+        let x1 = width;
+        let y1 = y;
+
+        let x2 = width - thickness;
+        let y2 = y;
+
+        let sizeNoise = noise(x2 * frameNoiseScale, y * frameNoiseScale);
+
+        x2 = width - lerp(1.0, 1.4, sizeNoise) * thickness;
+
+        strokeWeight(2);
+        line(x1, y1, x2, y2);    
     }
 }
 
