@@ -6,6 +6,9 @@ let baseBri = 40;
 let drawNS_X = 0.01;
 let drawNS_Y = 0.01;
 
+let bgNS_X = 0.06;
+let bgNS_Y = 0.03;
+
 let lineDensity = 0.6;
 let lineThickness = 6;
 let lineLength = 12;
@@ -189,6 +192,51 @@ function NYRect(_x, _y, _width, _height, _colorA, _colorB) {
 
                 strokeWeight(lineThickness * sizeNoise);
                 line(0, 0, drawLineLength, 0);
+                pop();
+            }
+        }
+    }
+}
+
+function NYRectBG(_x, _y, _width, _height, _colorA, _colorB) {
+
+    // draw vertical lines
+    {
+        let circleRadius = lineLength * random(1.0, 3.0);
+
+        let lineCountX = floor(_width / circleRadius * random(0.6, 1.2));
+        if (lineCountX == 0)
+            lineCountX = 1;
+
+        let lineCountY = floor(_height / circleRadius * random(1.2, 3.0));
+        if (lineCountY == 0)
+            lineCountY = 1;
+
+        let lineSpacingY = _height / (lineCountY - 1);
+        let drawLineLength = _width / (lineCountX);
+
+        let fromColor = _colorA;
+        let toColor = _colorB;
+
+        for (let y = 0; y < lineCountY; y++) {
+            for (let x = 0; x < lineCountX; x++) {
+                let xPos = _x + x * drawLineLength;
+                let yPos = _y + y * lineSpacingY;
+
+                let sizeNoise = noise(xPos * bgNS_X, yPos * bgNS_Y);
+
+                let nowColor = NYLerpColor(fromColor, toColor, x / lineCountX);
+                let randomizedColor = nowColor.getRandomColor(4, 4, 4);
+                randomizedColor.a = 0.8;
+                // randomizedColor.applyStroke();
+                noStroke();
+                randomizedColor.applyFill();
+
+                push();
+                translate(xPos, yPos);
+
+                strokeWeight(lineThickness * sizeNoise);
+                circle(0, 0, circleRadius);
                 pop();
             }
         }

@@ -112,7 +112,7 @@ class NYColor {
 
         h = processHue(h);
 
-        return new NYColor(h, s, b);
+        return new NYColor(h, s, b, this.a);
     }
 
     getP5Color() {

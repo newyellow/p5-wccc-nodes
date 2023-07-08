@@ -14,16 +14,16 @@ async function setup() {
   // different connection points styles
   let connectionType = floor(random(0, 3));
   if (connectionType == 0) {
-    stickChance = random(0.2, 0.6);
+    stickChance = random(0.1, 0.6);
     nodeBoxChance = 0.0;
   }
   else if (connectionType == 1) {
     stickChance = 0.0;
-    nodeBoxChance = random(0.2, 0.6);
+    nodeBoxChance = random(0.1, 0.6);
   }
   else {
-    stickChance = random(0.2, 0.4);
-    nodeBoxChance = random(0.2, 0.4);
+    stickChance = random(0.1, 0.4);
+    nodeBoxChance = random(0.1, 0.4);
   }
 
   // random wire color
@@ -33,9 +33,11 @@ async function setup() {
     wireColor = color(0, 0, 0, 0.9);
 
 
-  let bgColorA = new NYColor(mainHue, random(10, 50), random(10, 40));
-  let bgColorB = new NYColor(mainHue, random(10, 50), random(10, 60));
-  NYRect(0, 0, width, height, bgColorA, bgColorB);
+  let bgColorA = new NYColor(mainHue, random(10, 50), random(10, 60));
+  let bgColorB = new NYColor(mainHue + random(-30, 30), random(10, 50), random(10, 60));
+  console.log(bgColorA);
+  console.log(bgColorB);
+  NYRectBG(0, 0, width, height, bgColorA, bgColorB);
 
   await sleep(1);
 
